@@ -9,7 +9,7 @@ import (
 func main() {
 	r := gee.New()
 	r.Get("/", indexHandler)
-	r.POST("/hello", helloHandler)
+	r.Get("/hello", helloHandler)
 	r.Run(":9999")
 }
 

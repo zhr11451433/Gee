@@ -1,0 +1,14 @@
+# Go编译产物
+*.exe
+*.o
+*.a
+
+# IDEA 缓存文件夹
+.idea/
+*.iml
+
+# VSCode
+.vscode/
+
+# 系统文件
+.DS_Store
