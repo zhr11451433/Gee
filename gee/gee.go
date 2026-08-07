@@ -18,7 +18,7 @@ func (engine *Engine) addRouter(method string, path string, handler HandlerFunc)
 	engine.router.addRouter(method, path, handler)
 }
 
-func (engine *Engine) Get(path string, handler HandlerFunc) {
+func (engine *Engine) GET(path string, handler HandlerFunc) {
 	engine.addRouter("GET", path, handler)
 }
 
