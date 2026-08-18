@@ -2,15 +2,16 @@ package gee
 
 import (
 	"net/http"
+	"strings"
 )
 
 type HandlerFunc func(*Context)
 
 type RouterGroup struct {
-	prefix      string         //前缀码
-	parent      *RouterGroup   //父分组
-	middlewares []*HandlerFunc //中间件
-	engine      *Engine        //所有的分组都会指向唯一的engine实例
+	prefix      string        //前缀码
+	parent      *RouterGroup  //父分组
+	middlewares []HandlerFunc //中间件
+	engine      *Engine       //所有的分组都会指向唯一的engine实例
 }
 type Engine struct {
 	*RouterGroup //Engine内置了RouterGroup的所有方法
@@ -56,6 +57,10 @@ func (engine *Engine) Run(path string) (err error) {
 	return http.ListenAndServe(path, engine)
 }
 
+func (group *RouterGroup) Use(middlewares ...HandlerFunc) {
+	group.middlewares = append(group.middlewares, middlewares...)
+}
+
 func (engine *Engine) ServeHTTP(response http.ResponseWriter, r *http.Request) {
 	//key := r.Method + "-" + r.URL.Path
 	//if handler, ok := engine.router[key]; ok {
@@ -63,6 +68,13 @@ func (engine *Engine) ServeHTTP(response http.ResponseWriter, r *http.Request) {
 	//} else {
 	//	fmt.Fprintf(response, "404 NOT FOUND %s\n", r.URL)
 	//}
+	var middlewares []HandlerFunc
+	for _, group := range engine.groups {
+		if strings.HasPrefix(r.URL.Path, group.prefix) {
+			middlewares = append(middlewares, group.middlewares...)
+		}
+	}
 	c := newContext(response, r)
+	c.handlers = middlewares
 	engine.router.Handle(c)
 }

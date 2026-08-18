@@ -79,12 +79,15 @@ func (r *router) Handle(c *Context) { //负责接收一个请求，找到匹配�
 	if n != nil {
 		c.Params = params
 		key := c.Method + "-" + n.pattern
-		r.handlers[key](c)
+		c.handlers = append(c.handlers, r.handlers[key])
 		// 第一步：从 handlers 里取出处理函数
 		//handler := r.handlers[key]
 		// 第二步：调用这个函数，把 Context 传进去
 		//handler(c)
 	} else {
-		c.String(http.StatusNotFound, "404 NOT FOUND: %s\n", c.Path)
+		c.handlers = append(c.handlers, func(c *Context) {
+			c.String(http.StatusNotFound, "404 NOT FOUND: %s\n", c.Path)
+		})
 	}
+	c.Next()
 }
